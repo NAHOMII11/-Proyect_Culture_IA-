@@ -8,7 +8,8 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://admin_user:cultural_passw
 
 # Estos datos deben coincidir con tu docker-compose.yml
 # Cambia el 5432 por 5433
-SQLALCHEMY_DATABASE_URL = "postgresql://admin_user:cultural_password_2024@127.0.0.1:5433/places_db"
+# 'db_places' es el nombre del servicio en tu docker-compose
+SQLALCHEMY_DATABASE_URL = "postgresql://admin_user:cultural_password_2024@db_places:5432/places_db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
