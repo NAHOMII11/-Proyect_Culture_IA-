@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+  ai-enrichment-service:
+    build: .
+    container_name: ai-enrichment-service
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./places.db:/app/places.db  # Persistencia de la base de datos SQLite
+    restart: unless-stopped
