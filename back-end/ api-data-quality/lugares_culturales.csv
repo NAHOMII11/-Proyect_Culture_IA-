@@ -1,0 +1,8 @@
+nombre,ciudad,direccion,descripcion,categoría
+Museo Nacional de Colombia,Bogotá,Carrera 7 # 28-66,El museo mas antiguo de Colombia.,Museo
+Teatro Colón,Bogotá,Calle 10 # 5-32,Teatro nacional de Colombia.,Teatro
+Castillo de San Felipe,Cartagena,Cerro de San Lazaro,Fortificacion española en Cartagena.,Monumento
+Parque Explora,Medellín,Carrera 52 # 73-75,Centro de ciencia y tecnologia.,Museo
+,Cali,Calle 5 # 6-05,Lugar sin nombre para probar validacion.,Parque
+Museo La Tertulia,,Avenida Colombia # 5-105,Lugar sin ciudad para probar validacion.,Museo
+Teatro Municipal,Cali,,Lugar sin direccion para probar validacion.,Teatro
