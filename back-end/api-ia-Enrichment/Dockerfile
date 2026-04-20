@@ -1,17 +1,17 @@
-# Imagen base oficial de Python
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos del proyecto
-COPY . /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Instala las dependencias
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
 
-# Expone el puerto
-EXPOSE 3000
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Comando para arrancar el servidor FastAPI con Uvicorn
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "3000"]
+COPY app ./app
+
+EXPOSE 8006
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8006"]
