@@ -1,17 +1,7 @@
-# AI Enrichment Service (Mock)
+# AI Enrichment Service
 
-Servicio mock de enriquecimiento de lugares culturales con IA simulada usando **FastAPI**.
+Servicio real de enriquecimiento de lugares culturales usando **FastAPI** y **PostgreSQL**.
 
-## Carpetas modificadas
-
-```
-services/ai-enrichment-service/
-├── app.py                 ← servicio FastAPI y lógica mock
-├── requirements.txt       ← dependencias del servicio (FastAPI, uvicorn, pydantic)
-├── README.md              ← este archivo
-```
-
-> ⚠️ Solo se modifican archivos dentro de `services/ai-enrichment-service/`. No se toca ninguna otra carpeta del proyecto.
 
 ## Endpoints
 
@@ -77,12 +67,12 @@ Enriquece múltiples lugares en una sola llamada.
 
 ## Base de datos y persistencia
 
-- Se utiliza **SQLite** para almacenar los lugares enriquecidos automáticamente.
+- Se utiliza **PostgreSQL** para almacenar los lugares enriquecidos automáticamente.
 - El modelo Place almacena: place_id, name, description, category, tags, confidence, enriched_at.
 - Puedes consultar todos los lugares enriquecidos con:
 
-### `GET /places`
-Devuelve todos los lugares enriquecidos guardados en la base de datos.
+### `GET /enrichments/{place_id}`
+Devuelve un lugar enriquecido por `place_id`.
 
 **Response:**
 ```json
@@ -105,10 +95,10 @@ Devuelve todos los lugares enriquecidos guardados en la base de datos.
 ## Cómo correr localmente
 
 ```bash
-cd services/ai-enrichment-service
+cd back-end/api-ia-Enrichment
 pip install -r requirements.txt
-uvicorn app:app --reload --port 3000
-# Servidor en http://localhost:3000
+uvicorn app.main:app --reload --port 8000
+# Servidor en http://localhost:8000
 ```
 
 ---
@@ -130,11 +120,11 @@ Ya incluido en el proyecto. Para levantar el servicio y persistir la base de dat
 docker-compose up --build
 ```
 
-Esto expone el API en http://localhost:3000 y la base de datos SQLite se mantiene en el host.
+Esto expone el API en http://localhost:8000 con PostgreSQL.
 
 ---
 
 ## Notas
 - No se requiere configuración adicional para la base de datos, se crea automáticamente.
-- El servicio es completamente mock, no usa IA real ni llamadas externas.
-- Puedes modificar la lógica de enriquecimiento en `app.py`.
+- El servicio sigue la estructura real por capas (`app/api`, `app/core`, `app/db`, `app/schemas`).
+- Puedes modificar la lógica de enriquecimiento en `app/core/enrichment.py`.

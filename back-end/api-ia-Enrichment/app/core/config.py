@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     postgres_db: str = "places"
     postgres_host: str = "db"
     postgres_port: int = 5432
+    audit_service_url: str = "http://host.docker.internal:8007"
+    audit_timeout_seconds: int = 5
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

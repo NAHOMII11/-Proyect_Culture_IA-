@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  audit_db:
+    image: postgres:16
+    container_name: audit_db
+    environment:
+      POSTGRES_USER: audit_user
+      POSTGRES_PASSWORD: audit_pass
+      POSTGRES_DB: audit_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - audit_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  audit_api:
+    build: .
+    container_name: audit_api
+    ports:
+      - "8007:8007"
+    environment:
+      DATABASE_URL: postgresql+psycopg://audit_user:audit_pass@audit_db:5432/audit_db
+    depends_on:
+      - audit_db
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped
+
+volumes:
+  audit_data:
