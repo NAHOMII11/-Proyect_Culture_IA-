@@ -1,0 +1,251 @@
+services:
+  api-auth:
+    build:
+      context: ./api-atenticacion/
+      dockerfile: Dockerfile
+    container_name: cultureia-auth-api
+    volumes:
+      - ./api-atenticacion:/app
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/cultureia_db
+      - SECRET_KEY=cultureia_db
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: cultureia-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=cultureia_db
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  api-geo:
+    build:
+      context: ./api-geo/
+      dockerfile: Dockerfile
+    container_name: cultureia-geo-api
+    volumes:
+      - ./api-geo:/app
+    environment:
+      - DATABASE_URL=postgresql://user:password@db-geo:5432/cultureia_geo_db
+      - SECRET_KEY=cultureia-geo
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - PYTHONPATH=/app
+    depends_on:
+      - db-geo
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  db-geo:
+    image: postgres:15-alpine
+    container_name: cultureia-geo-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=cultureia_geo_db
+    volumes:
+      - postgres_geo_data:/var/lib/postgresql/data
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  api-place: 
+    build:
+      context: ./api-catalogo/
+      dockerfile: Dockerfile
+    container_name: api_place_container
+    depends_on:
+      db_places:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://admin_user:cultural_password_2024@db_places:5432/places_db
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  db_places:
+    image: postgres:15-alpine
+    container_name: cultural_route_db
+    environment:
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: cultural_password_2024
+      POSTGRES_DB: places_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_places_data:/var/lib/postgresql/data
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_user -d places_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  config_api:
+    build:
+      context: ./api-config/
+      dockerfile: Dockerfile
+    container_name: config_api
+    environment:
+      DATABASE_URL: postgresql+psycopg://config_user:config_password@config_db:5432/config_db
+    depends_on:
+      config_db:
+        condition: service_healthy
+    networks:
+      - cultureia-network
+    restart: unless-stopped    
+
+  config_db:
+    image: postgres:16-alpine
+    container_name: config_db
+    environment:
+      POSTGRES_USER: config_user
+      POSTGRES_PASSWORD: config_password
+      POSTGRES_DB: config_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - config_pg_data:/var/lib/postgresql/data
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U config_user -d config_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api-quality:
+    build:
+      context: ./api-dataquality/
+      dockerfile: Dockerfile
+    container_name: data-quality-api
+    env_file:
+      - ./api-dataquality/.env
+    volumes:
+      - ./api-dataquality:/app
+    depends_on:
+      db-quality:
+        condition: service_healthy
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  db-quality:
+    image: postgres:16-alpine
+    container_name: data-quality-db
+    environment:
+      POSTGRES_DB: data_quality_db
+      POSTGRES_USER: dq_user
+      POSTGRES_PASSWORD: dq_password
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_quality_data:/var/lib/postgresql/data
+      - ./api-dataquality/init-db:/docker-entrypoint-initdb.d
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dq_user -d data_quality_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-iaenri:
+    build:
+      context: ./api-ia-Enrichment/
+      dockerfile: Dockerfile
+    container_name: ai-enrichment-api
+    env_file:
+      - ./api-ia-Enrichment/.env
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://postgres:postgres@db-iaenri:5432/places"
+    depends_on:
+      db-iaenri:
+        condition: service_healthy
+    volumes:
+      - ./api-ia-Enrichment/app:/app/app
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+
+  db-iaenri:
+    image: postgres:16
+    container_name: ai-enrichment-db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "places"
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_iaenri_data:/var/lib/postgresql/data
+    networks:
+      - cultureia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d places"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+
+  gateway-bff:
+    build:
+      context: ./api-bff-gateway/
+      dockerfile: Dockerfile
+    container_name: gateway-bff
+    env_file:
+      - ./api-bff-gateway/.env
+    volumes:
+      - ./api-bff-gateway:/app
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "8000:8000"
+    networks:
+      - cultureia-network
+    depends_on:
+      - api-auth
+      - api-geo
+      - api-place
+      - config_api
+      - api-quality
+      - api-iaenri
+    restart: unless-stopped
+
+networks:
+  cultureia-network:
+    driver: bridge
+
+volumes:
+  postgres_auth_data:
+  postgres_geo_data:
+  postgres_places_data:
+  config_pg_data:
+  postgres_quality_data:
+  postgres_iaenri_data:
