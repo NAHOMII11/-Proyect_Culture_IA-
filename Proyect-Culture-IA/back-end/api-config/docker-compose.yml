@@ -1,0 +1,32 @@
+services:
+  config_api:
+    build: .
+    container_name: config_api
+    ports:
+      - "8010:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://config_user:config_password@config_db:5432/config_db
+    depends_on:
+      config_db:
+        condition: service_healthy
+
+  config_db:
+    image: postgres:16-alpine
+    container_name: config_db
+    environment:
+      POSTGRES_USER: config_user
+      POSTGRES_PASSWORD: config_password
+      POSTGRES_DB: config_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - config_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U config_user -d config_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  config_pg_data:
