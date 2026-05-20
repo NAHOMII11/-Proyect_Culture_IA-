@@ -1,0 +1,20 @@
+services:
+  db-recommendation:
+    image: postgres:15-alpine
+    container_name: db-recommendation
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: recommendation_db
+    ports:
+      - "5435:5432" # Puerto mapeado único
+
+  recommendation-api:
+    build: .
+    container_name: recommendation-api
+    ports:
+      - "8002:8000" # Disponible localmente en el puerto 8002
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db-recommendation:5432/recommendation_db
+    depends_on:
+      - db-recommendation
