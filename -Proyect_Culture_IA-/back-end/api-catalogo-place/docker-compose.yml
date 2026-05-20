@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db_places:
+    image: postgres:15-alpine
+    container_name: cultural_route_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: cultural_password_2024
+      POSTGRES_DB: places_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  api-place: 
+    build: .
+    container_name: api_place_container
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_places
+    environment:
+      
+      DATABASE_URL: postgresql://admin_user:cultural_password_2024@db_places:5432/places_db
+
+volumes:
+  postgres_data:

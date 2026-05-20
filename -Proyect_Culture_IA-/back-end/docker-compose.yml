@@ -1,0 +1,62 @@
+services:
+  auth_db:
+    image: postgres:15
+    container_name: auth_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  geo_db:
+    image: postgres:15
+    container_name: geo_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: geo_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - geo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./services/auth-service/.env
+    depends_on:
+      auth_db:
+        condition: service_healthy
+
+  geo-service:
+    build:
+      context: ./services/geo-service
+    container_name: geo-service
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./services/geo-service/.env
+    depends_on:
+      geo_db:
+        condition: service_healthy
+
+volumes:
+  auth_db_data:
+  geo_db_data:
