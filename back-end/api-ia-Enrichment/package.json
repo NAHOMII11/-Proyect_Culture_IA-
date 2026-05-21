@@ -1,0 +1,17 @@
+{
+  "name": "ai-enrichment-service",
+  "version": "1.0.0",
+  "description": "Mock AI enrichment service for cultural places",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
