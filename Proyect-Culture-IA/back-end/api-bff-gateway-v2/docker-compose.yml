@@ -1,0 +1,13 @@
+services:
+  gateway-bff:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gateway-bff
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped

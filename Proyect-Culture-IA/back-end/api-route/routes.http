@@ -1,0 +1,40 @@
+### API Route — vía Gateway (Sprint 3)
+### Base: http://localhost:8000/api/v1_route
+
+### 1. Crear ruta (sin filtro de categoría)
+POST http://localhost:8000/api/v1_route/routes
+Content-Type: application/json
+
+{
+  "user_lat": 4.6097,
+  "user_lng": -74.0817,
+  "preferred_categories": [],
+  "available_time_minutes": 180,
+  "max_places": 4
+}
+
+###
+
+### 2. Crear ruta (solo Museos, máx. 3 lugares)
+POST http://localhost:8000/api/v1_route/routes
+Content-Type: application/json
+
+{
+  "user_lat": 4.6097,
+  "user_lng": -74.0817,
+  "preferred_categories": ["Museo"],
+  "available_time_minutes": 180,
+  "max_places": 3
+}
+
+###
+
+### 3. Obtener ruta por ID (reemplaza {route_id} con el route_id de la respuesta POST)
+GET http://localhost:8000/api/v1_route/routes/{{route_id}}
+
+###
+
+### 4. Listar rutas generadas
+GET http://localhost:8000/api/v1_route/routes
+
+###
